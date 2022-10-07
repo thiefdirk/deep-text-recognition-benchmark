@@ -3,7 +3,7 @@
 import fire
 import os
 import lmdb
-import cv2
+import cv2 # if __name__ == '__main__':
 
 import numpy as np
 
@@ -35,11 +35,12 @@ def createDataset(inputPath, gtFile, outputPath, checkValid=True):
         checkValid : if true, check the validity of every image
     """
     os.makedirs(outputPath, exist_ok=True)
-    env = lmdb.open(outputPath, map_size=1099511627776)
+    env = lmdb.open(outputPath, map_size=111988383700)
     cache = {}
     cnt = 1
 
-    with open(gtFile, 'r', encoding='utf-8') as data:
+    # with open(gtFile, 'r', encoding='utf-8') as data:
+    with open(gtFile, 'r', encoding='cp949') as data:
         datalist = data.readlines()
 
     nSamples = len(datalist)
