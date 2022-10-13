@@ -81,7 +81,11 @@ def train(opt):
     if opt.saved_model != '':
         print(f'loading pretrained model from {opt.saved_model}')
         if opt.FT:
-            model.load_state_dict(torch.load(opt.saved_model), strict=False)
+            checkpoint = torch.load(opt.saved_model)
+            checkpoint = {k: v for k, v in checkpoint.items() if (k in model.state_dict().keys()) and (model.state_dict()[k].shape == checkpoint[k].shape)}
+            for name in model.state_dict().keys() :
+                if name in checkpoint.keys() :
+                    model.state_dict()[name].copy_(checkpoint[name])
         else:
             model.load_state_dict(torch.load(opt.saved_model))
     print("Model:")
@@ -257,7 +261,7 @@ if __name__ == '__main__':
     parser.add_argument('--imgW', type=int, default=100, help='the width of the input image')
     parser.add_argument('--rgb', action='store_true', help='use rgb input')
     parser.add_argument('--character', type=str,
-                        # default='0123456789abcdefghijklmnopqrstuvwxyz', help='character label')
+                        ## default='0123456789abcdefghijklmnopqrstuvwxyz', help='character label')
                         default='0123456789abcdefghijklmnopqrstuvwxyz가각간갇갈감갑값갓강갖같갚갛개객걀\
                         걔거걱건걷걸검겁것겉게겨격겪견결겹경곁계고곡곤곧골곰곱곳공과관광괜괴굉교구국군굳굴굵\
                         굶굽궁권귀귓규균귤그극근글긁금급긋긍기긴길김깅깊까깍깎깐깔깜깝깡깥깨꺼꺾껌껍껏껑께껴\
