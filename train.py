@@ -52,7 +52,7 @@ def train(opt):
     else:
         converter = AttnLabelConverter(opt.character)
     opt.num_class = len(converter.character)
-
+##
     if opt.rgb:
         opt.input_channel = 3
     model = Model(opt)
