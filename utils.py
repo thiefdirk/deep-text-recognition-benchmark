@@ -12,7 +12,7 @@ class CTCLabelConverter(object):
         self.dict = {}
         for i, char in enumerate(dict_character):
             # NOTE: 0 is reserved for 'CTCblank' token required by CTCLoss
-            self.dict[char] = i + 1
+            self.dict[char] = i + 1 # dict[char] = index
 
         self.character = ['[CTCblank]'] + dict_character  # dummy '[CTCblank]' token for CTCLoss (index 0)
 
@@ -26,27 +26,27 @@ class CTCLabelConverter(object):
             text: text index for CTCLoss. [batch_size, batch_max_length]
             length: length of each text. [batch_size]
         """
-        length = [len(s) for s in text]
+        length = [len(s) for s in text] # length of each text, e.g. [5, 3, 4, 5, 6]``
 
         # The index used for padding (=0) would not affect the CTC loss calculation.
-        batch_text = torch.LongTensor(len(text), batch_max_length).fill_(0)
-        for i, t in enumerate(text):
-            text = list(t)
-            text = [self.dict[char] for char in text]
-            batch_text[i][:len(text)] = torch.LongTensor(text)
+        batch_text = torch.LongTensor(len(text), batch_max_length).fill_(0) # print(batch_text)
+        for i, t in enumerate(text): # enumerate : index, value
+            text = list(t) # list : 문자열을 리스트로 변환, ex) 'abc' -> ['a', 'b', 'c']
+            text = [self.dict[char] for char in text] # dict[char] = index, ex) ['a', 'b', 'c'] -> [1, 2, 3]
+            batch_text[i][:len(text)] = torch.LongTensor(text) # batch_text[i] : 0~len(text)까지 text를 넣음
         return (batch_text.to(device), torch.IntTensor(length).to(device))
 
     def decode(self, text_index, length):
         """ convert text-index into text-label. """
         texts = []
-        for index, l in enumerate(length):
+        for index, l in enumerate(length): # 
             t = text_index[index, :]
 
             char_list = []
             for i in range(l):
                 if t[i] != 0 and (not (i > 0 and t[i - 1] == t[i])):  # removing repeated characters and blank.
                     char_list.append(self.character[t[i]])
-            text = ''.join(char_list)
+            text = ''.join(char_list) # 
 
             texts.append(text)
         return texts

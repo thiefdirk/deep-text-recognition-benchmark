@@ -33,7 +33,7 @@ def demo(opt):
     model.load_state_dict(torch.load(opt.saved_model, map_location=device))
 
     # prepare data. two demo images from https://github.com/bgshih/crnn#run-demo
-    AlignCollate_demo = AlignCollate(imgH=opt.imgH, imgW=opt.imgW, keep_ratio_with_pad=opt.PAD)
+    AlignCollate_demo = AlignCollate(imgH=opt.imgH, imgW=opt.imgW, keep_ratio_with_pad=opt.PAD) # AlignCollate_demo : AlignCollate
     demo_data = RawDataset(root=opt.image_folder, opt=opt)  # use RawDataset
     demo_loader = torch.utils.data.DataLoader(
         demo_data, batch_size=opt.batch_size,
@@ -49,14 +49,14 @@ def demo(opt):
             image = image_tensors.to(device)
             # For max length prediction
             length_for_pred = torch.IntTensor([opt.batch_max_length] * batch_size).to(device)
-            text_for_pred = torch.LongTensor(batch_size, opt.batch_max_length + 1).fill_(0).to(device)
+            text_for_pred = torch.LongTensor(batch_size, opt.batch_max_length + 1).fill_(0).to(device) # 
 
             if 'CTC' in opt.Prediction:
-                preds = model(image, text_for_pred)
+                preds = model(image, text_for_pred) # print(preds) : 
 
                 # Select max probabilty (greedy decoding) then decode index to character
-                preds_size = torch.IntTensor([preds.size(1)] * batch_size)
-                _, preds_index = preds.max(2)
+                preds_size = torch.IntTensor([preds.size(1)] * batch_size)# size(1) : 25
+                _, preds_index = preds.max(2) # .max() : return max value and index
                 # preds_index = preds_index.view(-1)
                 preds_str = converter.decode(preds_index, preds_size)
 

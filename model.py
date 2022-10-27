@@ -75,7 +75,7 @@ class Model(nn.Module):
         """ Feature extraction stage """
         visual_feature = self.FeatureExtraction(input)
         visual_feature = self.AdaptiveAvgPool(visual_feature.permute(0, 3, 1, 2))  # [b, c, h, w] -> [b, w, c, h]
-        visual_feature = visual_feature.squeeze(3)
+        visual_feature = visual_feature.squeeze(3) # squeeze  : [b, w, c, h] -> [b, w, c]
 
         """ Sequence modeling stage """
         if self.stages['Seq'] == 'BiLSTM':
@@ -85,7 +85,7 @@ class Model(nn.Module):
 
         """ Prediction stage """
         if self.stages['Pred'] == 'CTC':
-            prediction = self.Prediction(contextual_feature.contiguous())
+            prediction = self.Prediction(contextual_feature.contiguous()) # contiguous : [b, w, c] -> [b*w, c]
         else:
             prediction = self.Prediction(contextual_feature.contiguous(), text, is_train, batch_max_length=self.opt.batch_max_length)
 
