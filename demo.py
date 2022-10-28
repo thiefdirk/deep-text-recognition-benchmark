@@ -55,8 +55,20 @@ def demo(opt):
                 preds = model(image, text_for_pred) # print(preds) : 
 
                 # Select max probabilty (greedy decoding) then decode index to character
-                preds_size = torch.IntTensor([preds.size(1)] * batch_size)# size(1) : 25
+                preds_size = torch.IntTensor([preds.size(1)] * batch_size) # print(preds_size) : 
+                print(batch_size)
+                print(preds_size) # tensor([26, 26, 26, 26, 26, 26, 26, 26, 26, 26], dtype=torch.int32)
+                print(preds)
+                print(preds.size()) # torch.Size([10, 26, 1539])
+                print(preds.size(1)) # 26
+                print(preds.size(0)) # 10
+                print(preds_size.size()) # torch.Size([10])
+                # a= torch.Tensor([1,2,3],[4,5,6])
+                # c = torchIntTensor([a.size(1)] * 3)
+                # print(c.size()) : torch.Size([3])
+                # print(a.size()) : torch.Size([2,3])
                 _, preds_index = preds.max(2) # .max() : return max value and index
+                print(preds_index)
                 # preds_index = preds_index.view(-1)
                 preds_str = converter.decode(preds_index, preds_size)
 
@@ -102,6 +114,7 @@ if __name__ == '__main__':
     parser.add_argument('--imgH', type=int, default=32, help='the height of the input image')
     parser.add_argument('--imgW', type=int, default=100, help='the width of the input image')
     parser.add_argument('--rgb', action='store_true', help='use rgb input')
+    # parser.add_argument('--character', type=str, default='0123456789abcdefghijklmnopqrstuvwxyz', help='character label')
     parser.add_argument('--character', type=str, default='0123456789abcdefghijklmnopqrstuvwxyz가각간갇갈감갑값갓강갖같갚갛개객걀\
                         걔거걱건걷걸검겁것겉게겨격겪견결겹경곁계고곡곤곧골곰곱곳공과관광괜괴굉교구국군굳굴굵\
                         굶굽궁권귀귓규균귤그극근글긁금급긋긍기긴길김깅깊까깍깎깐깔깜깝깡깥깨꺼꺾껌껍껏껑께껴\

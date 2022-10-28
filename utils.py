@@ -39,14 +39,14 @@ class CTCLabelConverter(object):
     def decode(self, text_index, length):
         """ convert text-index into text-label. """
         texts = []
-        for index, l in enumerate(length): # 
+        for index, l in enumerate(length): # for index, l in enumerate(800) : 0~799까지 반복
             t = text_index[index, :]
 
             char_list = []
-            for i in range(l):
-                if t[i] != 0 and (not (i > 0 and t[i - 1] == t[i])):  # removing repeated characters and blank.
+            for i in range(l): # index : 0 ~ l-1
+                if t[i] != 0 and (not (i > 0 and t[i - 1] == t[i])):  # i > 0 : t[i-1]이 존재하고, t[i-1] == t[i] : 이전 문자와 같은 경우
                     char_list.append(self.character[t[i]])
-            text = ''.join(char_list) # 
+            text = ''.join(char_list) # list -> string
 
             texts.append(text)
         return texts

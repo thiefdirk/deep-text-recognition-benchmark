@@ -146,7 +146,7 @@ def train(opt):
     best_norm_ED = -1
     iteration = start_iter
 
-    while(True):
+    while(True): # while
         # train part
         image_tensors, labels = train_dataset.get_batch()
         image = image_tensors.to(device)
