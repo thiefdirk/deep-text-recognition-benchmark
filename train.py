@@ -82,6 +82,9 @@ def train(opt):
         print(f'loading pretrained model from {opt.saved_model}')
         if opt.FT: # https://github.com/clovaai/deep-text-recognition-benchmark/issues/210
             checkpoint = torch.load(opt.saved_model)
+            if checkpoint['module.Prediction.weight'].shape == model.state_dict()['module.Prediction.weight'].shape:
+                print('same shape')
+
             checkpoint = {k: v for k, v in checkpoint.items() if (k in model.state_dict().keys()) and (model.state_dict()[k].shape == checkpoint[k].shape)} #  {k: v for k, v in checkpoint.items() if (k in model.state_dict().keys()) and (model.state_dict()[k].shape == checkpoint[k].shape)} : to load only the layers which are common in both model and checkpoint
             for name in model.state_dict().keys() :
                 if name in checkpoint.keys() : 
@@ -98,7 +101,7 @@ def train(opt):
             from torch.nn import CTCLoss 
             criterion = CTCLoss()
         else:
-            criterion = torch.nn.CTCLoss(zero_infinity=True).to(device)
+            criterion = torch.nn.CTCLoss(zero_infinity=True).to(device) 
     else:
         criterion = torch.nn.CrossEntropyLoss(ignore_index=0).to(device)  # ignore [GO] token = ignore index 0
     # loss averager
