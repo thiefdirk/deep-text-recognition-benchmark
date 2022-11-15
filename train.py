@@ -80,15 +80,14 @@ def train(opt):
     model.train()
     if opt.saved_model != '':
         print(f'loading pretrained model from {opt.saved_model}')
-        if opt.FT: # https://github.com/clovaai/deep-text-recognition-benchmark/issues/210
+        if opt.FT: 
             checkpoint = torch.load(opt.saved_model)
-            if checkpoint['module.Prediction.weight'].shape == model.state_dict()['module.Prediction.weight'].shape:
-                print('same shape')
 
-            checkpoint = {k: v for k, v in checkpoint.items() if (k in model.state_dict().keys()) and (model.state_dict()[k].shape == checkpoint[k].shape)} #  {k: v for k, v in checkpoint.items() if (k in model.state_dict().keys()) and (model.state_dict()[k].shape == checkpoint[k].shape)} : to load only the layers which are common in both model and checkpoint
+            checkpoint = {k: v for k, v in checkpoint.items() 
+                          if (k in model.state_dict().keys()) and (model.state_dict()[k].shape == checkpoint[k].shape)}
             for name in model.state_dict().keys() :
                 if name in checkpoint.keys() : 
-                    model.state_dict()[name].copy_(checkpoint[name]) # model.state_dict()[name].copy_(checkpoint[name]) : copy the value of checkpoint[name] to model.state_dict()[name]
+                    model.state_dict()[name].copy_(checkpoint[name]) 
         else:
             model.load_state_dict(torch.load(opt.saved_model)) # strict=False : to load model trained with different number of GPUs
     print("Model:")

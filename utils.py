@@ -3,7 +3,6 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class CTCLabelConverter(object):
-    """ Convert between text-label and text-index """
 
     def __init__(self, character):
         # character (str): set of the possible characters.
@@ -11,42 +10,29 @@ class CTCLabelConverter(object):
 
         self.dict = {}
         for i, char in enumerate(dict_character):
-            # NOTE: 0 is reserved for 'CTCblank' token required by CTCLoss
-            self.dict[char] = i + 1 # dict[char] = index
+            self.dict[char] = i + 1 
 
         self.character = ['[CTCblank]'] + dict_character  # dummy '[CTCblank]' token for CTCLoss (index 0)
 
     def encode(self, text, batch_max_length=25):
-        """convert text-label into text-index.
-        input:
-            text: text labels of each image. [batch_size]
-            batch_max_length: max length of text label in the batch. 25 by default
-
-        output:
-            text: text index for CTCLoss. [batch_size, batch_max_length]
-            length: length of each text. [batch_size]
-        """
-        length = [len(s) for s in text] # length of each text, e.g. [5, 3, 4, 5, 6]``
-
-        # The index used for padding (=0) would not affect the CTC loss calculation.
-        batch_text = torch.LongTensor(len(text), batch_max_length).fill_(0) # print(batch_text)
+        length = [len(s) for s in text] 
+        batch_text = torch.LongTensor(len(text), batch_max_length).fill_(0) 
         for i, t in enumerate(text): # enumerate : index, value
-            text = list(t) # list : 문자열을 리스트로 변환, ex) 'abc' -> ['a', 'b', 'c']
+            text = list(t) # ex) 'abc' -> ['a', 'b', 'c']
             text = [self.dict[char] for char in text] # dict[char] = index, ex) ['a', 'b', 'c'] -> [1, 2, 3]
-            batch_text[i][:len(text)] = torch.LongTensor(text) # batch_text[i] : 0~len(text)까지 text를 넣음
+            batch_text[i][:len(text)] = torch.LongTensor(text) 
         return (batch_text.to(device), torch.IntTensor(length).to(device))
 
     def decode(self, text_index, length):
-        """ convert text-index into text-label. """
         texts = []
-        for index, l in enumerate(length): # for index, l in enumerate(800) : 0~799까지 반복
+        for index, l in enumerate(length): 
             t = text_index[index, :]
 
             char_list = []
-            for i in range(l): # index : 0 ~ l-1
-                if t[i] != 0 and (not (i > 0 and t[i - 1] == t[i])):  # i > 0 : t[i-1]이 존재하고, t[i-1] == t[i] : 이전 문자와 같은 경우
+            for i in range(l): 
+                if t[i] != 0 and (not (i > 0 and t[i - 1] == t[i])):  
                     char_list.append(self.character[t[i]])
-            text = ''.join(char_list) # list -> string
+            text = ''.join(char_list) 
 
             texts.append(text)
         return texts
@@ -115,16 +101,6 @@ class AttnLabelConverter(object):
             self.dict[char] = i
 
     def encode(self, text, batch_max_length=25):
-        """ convert text-label into text-index.
-        input:
-            text: text labels of each image. [batch_size]
-            batch_max_length: max length of text label in the batch. 25 by default
-
-        output:
-            text : the input of attention decoder. [batch_size x (max_length+2)] +1 for [GO] token and +1 for [s] token.
-                text[:, 0] is [GO] token and text is padded with [GO] token after [s] token.
-            length : the length of output of attention decoder, which count [s] token also. [3, 7, ....] [batch_size]
-        """
         length = [len(s) + 1 for s in text]  # +1 for [s] at end of sentence.
         # batch_max_length = max(length) # this is not allowed for multi-gpu setting
         batch_max_length += 1
