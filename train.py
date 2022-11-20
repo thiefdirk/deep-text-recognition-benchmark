@@ -316,7 +316,7 @@ if __name__ == '__main__':
     if opt.sensitive:
         # opt.character += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
         opt.character = string.printable[:-6]  # same with ASTER setting (use 94 char).
-
+#
     """ Seed and GPU setting """
     # print("Random Seed: ", opt.manualSeed)
     random.seed(opt.manualSeed)
