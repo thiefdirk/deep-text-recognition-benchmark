@@ -45,6 +45,8 @@ def demo(opt):
     model.eval()
     with torch.no_grad():
         for image_tensors, image_path_list in demo_loader:
+            import time
+            start_time = time.time()
             batch_size = image_tensors.size(0)
             image = image_tensors.to(device)
             # For max length prediction
@@ -96,10 +98,15 @@ def demo(opt):
                     pred_max_prob = pred_max_prob[:pred_EOS]
 
                 # calculate confidence score (= multiply of pred_max_prob)
-                confidence_score = pred_max_prob.cumprod(dim=0)[-1]
+                confidence_score = pred_max_prob.cumprod(dim=0)[-1] # cumprod : cumulative product
+                
+                # confidence_score 0.3 이상인 것만 출력
+                # if confidence_score < 0.3:
+                #     continue
 
                 print(f'{img_name:25s}\t{pred:25s}\t{confidence_score:0.4f}')
                 log.write(f'{img_name:25s}\t{pred:25s}\t{confidence_score:0.4f}\n')
+            print(time.time() - start_time)
 
             log.close()
 
@@ -162,3 +169,7 @@ if __name__ == '__main__':
     opt.num_gpu = torch.cuda.device_count()
 
     demo(opt)
+
+# python demo.py --image_folder C:\study\result/ --saved_model C:\deep-text-recognition-benchmark\saved_models\TPS-ResNet-BiLSTM-CTC-Seed1111\best_accuracy.pth --Transformation TPS --FeatureExtraction ResNet --SequenceModeling BiLSTM --Prediction CTC
+
+# python demo.py --image_folder C:\study\result/ --saved_model C:\deep-text-recognition-benchmark\saved_models\TPS-ResNet-BiLSTM-CTC-300000\best_accuracy.pth --Transformation TPS --FeatureExtraction ResNet --SequenceModeling BiLSTM --Prediction CTC
